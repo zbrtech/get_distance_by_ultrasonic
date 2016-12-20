@@ -1,8 +1,8 @@
 #include <AT89x51.H>		//器件配置文件
 #include <intrins.h>
 
-#define TRIG P1_1	//分别给超声波发射口和接受口设置别名，
-#define ECHO P1_2	//这里11 12引脚可以随便使用，只要是P1~P3间的IO口就行
+#define TRIG P3_3	//分别给超声波发射口和接受口设置别名，
+#define ECHO P3_4	//这里11 12引脚可以随便使用，只要是P1~P3间的IO口就行
 
 //下面是对1602显示频引脚的定义
 //这里较为固定，因为我们接的就是最后一排那个接口，
@@ -11,9 +11,23 @@
 #define LCM_RS P0_7	 //寄存器选择
 #define LCM_RW P0_6  //读写选择线
 #define LCM_DATA P2	 //数据选择线，共有P20-P28个数据选择端
-
+#define BEEP P3_6
 #define BUSY 0x80   //用来检测LCM是否是busy表示，读取BF字段的值
 typedef bit BOOL;
+
+
+//定义一些常量
+static unsigned char DisNum = 0; //显示用指针				  
+       unsigned int  time=0;
+	   unsigned long S =0;
+	   bit      flag =0;
+	   unsigned char disbuff[4]	   ={ 0,0,0,0,};
+
+unsigned char code first_line[] = {"disstance is:"};
+unsigned char code wrong_info[] = {"over the longest distance"};
+unsigned char code num_char[] = {'0','1','2','3','4','5','6','7','8','9','.','-','M'};
+
+
 
 /*
 1602基本的引脚功能：
@@ -33,6 +47,12 @@ void delay_ms(int time)
 	unsigned int time2 = 100;
 	while(time1) time1--;
 	while(time2--);
+}
+
+void delay500(void)
+{
+	unsigned char i;
+	for (i = 230; i > 0; --i);
 }
 
 BOOL get_busy_status(void)
@@ -96,7 +116,7 @@ void LCM_init(void)
 
 	write_command(0x38, 1);
 	delay_ms(50);
-	write_command(0x0e, 1); //设置显示光标
+	write_command(0x0f, 1); //设置显示光标
 	write_command(0x01, 1); //清屏一波
 	write_command(0x06, 1); //地址指针自动+1且光标+1 
 	write_command(0x80, 1); //设置初始显示位置，这一步好像可以不要，
@@ -114,14 +134,101 @@ void display_one_char(unsigned char x, unsigned char y, unsigned char data_)
 	write_data(data_);
 }
 
-int main()
+
+void interrupt_func() interrupt 1 //T0中断用来计数器溢出，超出测距范围
 {
+	flag = 1;         //中断溢出标志
+}
+
+void strat_ultrasonic(void)
+{
+	TRIG = 1; //启动超声波模块
+	_nop_();	//延时至少10ums以上
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+	TRIG = 0;  //关闭该模块
+}
+
+void count_distance(void)
+{	unsigned char j;
+	time = TH0 * 256 + TL0;
+	TH0 = 0;   //重新归零，重新计数
+	TL0 = 0;
+
+	S = (time * 1.7) / 100;  //这里算出来的是cm
+	if ((S >= 700) || flag == 1)
+	{
+		flag = 0;
+
+		display_one_char(0, 1, 'F');
+	}
+	else
+	{
+		if (S < 10){
+			P1 = 0x00;
+			delay_ms(50000);
+			P1 = 0xff;
+			delay_ms(50000);
+			for(j = 200; j > 0; --j){
+				BEEP = ~BEEP;
+				delay500();
+			}	
+		}
+		disbuff[0]=S%1000/100;
+	  	disbuff[1]=S%1000%100/10;
+	  	disbuff[2]=S%1000%10 %10;
+	  	display_one_char(0, 1, num_char[disbuff[0]]);
+	  	display_one_char(1, 1, num_char[10]);	//显示点
+	  	display_one_char(2, 1, num_char[disbuff[1]]);
+	  	display_one_char(3, 1, num_char[disbuff[2]]);
+	  	display_one_char(4, 1, num_char[12]);	//显示M
+	}
+
+
+}
+
+int main()
+{	unsigned char i = 0;
 	delay_ms(400);
 	LCM_init();
 	delay_ms(400);
-	display_one_char(0, 0, 'c');
-	while(1);
+	while(first_line[i] != '\0'){
+		display_one_char(i, 0, first_line[i]);
+		i++;
+		}
+	display_one_char(0, 1, 'T');
+//	display_one_char(0, 0, 'c');
+	while(1)
+	{
+		TMOD = 0x01;      //设T0为方式1， GATE=1
+		TH0 = 0;
+		TL0 = 0;
+		ET0 = 1;         //允许T0中断
+		EA = 1;			 //开启总中断，这一步是必须的，因为总共有两个计时器
+
+		while(1){
+			strat_ultrasonic();
+			while(!ECHO);   //等待
+			TR0 = 1;       //开启计数
+			while(ECHO);	//计时并且等待
+			TR0 = 0;
+			count_distance();
+			delay_ms(80000);   //延时
+		}
+	}
+
+	//while(1);
 	return 0;
 }
 
-                

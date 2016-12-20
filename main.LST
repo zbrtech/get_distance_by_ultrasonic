@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   MAIN                                                                  12/20/2016 00:39:08 PAGE 1   
+C51 COMPILER V9.00   MAIN                                                                  12/20/2016 18:42:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
@@ -10,8 +10,8 @@ line level    source
    1          #include <AT89x51.H>            //器件配置文件
    2          #include <intrins.h>
    3          
-   4          #define TRIG P1_1       //分别给超声波发射口和接受口设置别名，
-   5          #define ECHO P1_2       //这里11 12引脚可以随便使用，只要是P1~P3间的IO口就行
+   4          #define TRIG P3_3       //分别给超声波发射口和接受口设置别名，
+   5          #define ECHO P3_4       //这里11 12引脚可以随便使用，只要是P1~P3间的IO口就行
    6          
    7          //下面是对1602显示频引脚的定义
    8          //这里较为固定，因为我们接的就是最后一排那个接口，
@@ -20,134 +20,245 @@ line level    source
   11          #define LCM_RS P0_7      //寄存器选择
   12          #define LCM_RW P0_6  //读写选择线
   13          #define LCM_DATA P2      //数据选择线，共有P20-P28个数据选择端
-  14          
+  14          #define BEEP P3_6
   15          #define BUSY 0x80   //用来检测LCM是否是busy表示，读取BF字段的值
   16          typedef bit BOOL;
   17          
-  18          /*
-  19          1602基本的引脚功能：
-  20          第1脚：VSS为电源地
-  21          第2脚：VCC接5V电源正极
-  22          第4脚：RS为寄存器选择，高电平1时选择数据寄存器、低电平0时选择指令寄存器。
-  23          第5脚：RW为读写信号线，高电平(1)时进行读操作，低电平(0)时进行写操作。
-  24          第6脚：E(或EN)端为使能(enable)端,高电平（1）时读取信息
-  25          第7～14脚：D0～D7为8位双向数据端。
-  26          */
-  27          
-  28          //因为单片机执行是有时间延迟的，所以很多时候都要加一个延时的设置
-  29          //延迟时间和晶振频率有关，（具体不知道）ps至少延时大于100个执行时间
-  30          void delay_ms(int time)
-  31          {
-  32   1              unsigned int time1 = time;
-  33   1              unsigned int time2 = 100;
-  34   1              while(time1) time1--;
-  35   1              while(time2--);
-  36   1      }
-  37          
-  38          BOOL get_busy_status(void)
-  39          {
-  40   1              BOOL result;
-  41   1              LCM_DATA = 0xff;
-  42   1              LCM_RS = 0;     //选择指令寄存器
-  43   1              LCM_RW = 1;    //读操作
-  44   1              LCM_EN = 0;
-  45   1              delay_ms(50);
-  46   1              LCM_EN = 1;
-  47   1              result = LCM_DATA & BUSY; //检测忙信号,如果忙碌就一直等待
-  48   1              return result;
-  49   1      }
-  50          
+  18          
+  19          //定义一些常量
+  20          static unsigned char DisNum = 0; //显示用指针                             
+  21                 unsigned int  time=0;
+  22                     unsigned long S =0;
+  23                     bit      flag =0;
+  24                     unsigned char disbuff[4]        ={ 0,0,0,0,};
+  25          
+  26          unsigned char code first_line[] = {"disstance is:"};
+  27          unsigned char code wrong_info[] = {"over the longest distance"};
+  28          unsigned char code num_char[] = {'0','1','2','3','4','5','6','7','8','9','.','-','M'};
+  29          
+  30          
+  31          
+  32          /*
+  33          1602基本的引脚功能：
+  34          第1脚：VSS为电源地
+  35          第2脚：VCC接5V电源正极
+  36          第4脚：RS为寄存器选择，高电平1时选择数据寄存器、低电平0时选择指令寄存器。
+  37          第5脚：RW为读写信号线，高电平(1)时进行读操作，低电平(0)时进行写操作。
+  38          第6脚：E(或EN)端为使能(enable)端,高电平（1）时读取信息
+  39          第7～14脚：D0～D7为8位双向数据端。
+  40          */
+  41          
+  42          //因为单片机执行是有时间延迟的，所以很多时候都要加一个延时的设置
+  43          //延迟时间和晶振频率有关，（具体不知道）ps至少延时大于100个执行时间
+  44          void delay_ms(int time)
+  45          {
+  46   1              unsigned int time1 = time;
+  47   1              unsigned int time2 = 100;
+  48   1              while(time1) time1--;
+  49   1              while(time2--);
+  50   1      }
   51          
-  52          //写指令
-  53          void write_command(unsigned char WCLCM, busy)//当busy为0的时候不检查是否忙碌
-  54          {
-  55   1              while(get_busy_status());
-C51 COMPILER V9.00   MAIN                                                                  12/20/2016 00:39:08 PAGE 2   
+  52          void delay500(void)
+  53          {
+  54   1              unsigned char i;
+  55   1              for (i = 230; i > 0; --i);
+C51 COMPILER V9.00   MAIN                                                                  12/20/2016 18:42:03 PAGE 2   
 
-  56   1              LCM_DATA = WCLCM;
-  57   1              LCM_RS = 0;    //选择指令寄存器
-  58   1              LCM_RW = 0;    //选择写操作，这里是写操作字
-  59   1              LCM_EN = 0;             //在这里起一个延时的作用
-  60   1              delay_ms(50);   //作用和上面其实是一样的
-  61   1              LCM_EN = 1;    //执行指令
-  62   1      }
-  63          
-  64          //写数据
-  65          void write_data(unsigned char WRLCM)
-  66          {
-  67   1              while(get_busy_status());
-  68   1              LCM_DATA = WRLCM;
-  69   1              LCM_RS = 1;  //因为是写操作，所以要选择数据寄存器
-  70   1              LCM_RW = 0;  //写操作
-  71   1              LCM_EN = 0;
-  72   1              delay_ms(50);
-  73   1              LCM_EN = 1;
-  74   1      }
-  75          
-  76          
-  77          //读数据
-  78          unsigned char read_data(void)
-  79          {
-  80   1              LCM_RS = 1;
-  81   1              LCM_RW = 1;  //读操作
-  82   1              LCM_EN = 0;
-  83   1              delay_ms(50);
-  84   1              LCM_EN = 1;
-  85   1              return LCM_DATA;
-  86   1      }
-  87          
-  88          //初始化
-  89          void LCM_init(void)
-  90          {
-  91   1              LCM_DATA = 0;
-  92   1              LCM_EN = 0;
-  93   1              /*0x38  00111000  设置16*2显示  5*7点阵  8位数据接口*/  
-  94   1              write_command(0x38, 0);
-  95   1              delay_ms(50);
-  96   1      
-  97   1              write_command(0x38, 1);
-  98   1              delay_ms(50);
-  99   1              write_command(0x0e, 1); //设置显示光标
- 100   1              write_command(0x01, 1); //清屏一波
- 101   1              write_command(0x06, 1); //地址指针自动+1且光标+1 
- 102   1              write_command(0x80, 1); //设置初始显示位置，这一步好像可以不要，
- 103   1                                                              //后面肯定还要设置地址。
- 104   1      }
- 105          
- 106          
- 107          void display_one_char(unsigned char x, unsigned char y, unsigned char data_)
- 108          {
- 109   1              y &= 0x01;
- 110   1              x &= 0x0f;              //限制x不能大于15
- 111   1              if (y) x |= 0x40; //要显示第二行的时候
- 112   1              x |= 0x80;
- 113   1              write_command(x, 1);
- 114   1              write_data(data_);
- 115   1      }
- 116          
- 117          int main()
-C51 COMPILER V9.00   MAIN                                                                  12/20/2016 00:39:08 PAGE 3   
+  56   1      }
+  57          
+  58          BOOL get_busy_status(void)
+  59          {
+  60   1              BOOL result;
+  61   1              LCM_DATA = 0xff;
+  62   1              LCM_RS = 0;     //选择指令寄存器
+  63   1              LCM_RW = 1;    //读操作
+  64   1              LCM_EN = 0;
+  65   1              delay_ms(50);
+  66   1              LCM_EN = 1;
+  67   1              result = LCM_DATA & BUSY; //检测忙信号,如果忙碌就一直等待
+  68   1              return result;
+  69   1      }
+  70          
+  71          
+  72          //写指令
+  73          void write_command(unsigned char WCLCM, busy)//当busy为0的时候不检查是否忙碌
+  74          {
+  75   1              while(get_busy_status());
+  76   1              LCM_DATA = WCLCM;
+  77   1              LCM_RS = 0;    //选择指令寄存器
+  78   1              LCM_RW = 0;    //选择写操作，这里是写操作字
+  79   1              LCM_EN = 0;             //在这里起一个延时的作用
+  80   1              delay_ms(50);   //作用和上面其实是一样的
+  81   1              LCM_EN = 1;    //执行指令
+  82   1      }
+  83          
+  84          //写数据
+  85          void write_data(unsigned char WRLCM)
+  86          {
+  87   1              while(get_busy_status());
+  88   1              LCM_DATA = WRLCM;
+  89   1              LCM_RS = 1;  //因为是写操作，所以要选择数据寄存器
+  90   1              LCM_RW = 0;  //写操作
+  91   1              LCM_EN = 0;
+  92   1              delay_ms(50);
+  93   1              LCM_EN = 1;
+  94   1      }
+  95          
+  96          
+  97          //读数据
+  98          unsigned char read_data(void)
+  99          {
+ 100   1              LCM_RS = 1;
+ 101   1              LCM_RW = 1;  //读操作
+ 102   1              LCM_EN = 0;
+ 103   1              delay_ms(50);
+ 104   1              LCM_EN = 1;
+ 105   1              return LCM_DATA;
+ 106   1      }
+ 107          
+ 108          //初始化
+ 109          void LCM_init(void)
+ 110          {
+ 111   1              LCM_DATA = 0;
+ 112   1              LCM_EN = 0;
+ 113   1              /*0x38  00111000  设置16*2显示  5*7点阵  8位数据接口*/  
+ 114   1              write_command(0x38, 0);
+ 115   1              delay_ms(50);
+ 116   1      
+ 117   1              write_command(0x38, 1);
+C51 COMPILER V9.00   MAIN                                                                  12/20/2016 18:42:03 PAGE 3   
 
- 118          {
- 119   1              delay_ms(400);
- 120   1              LCM_init();
- 121   1              delay_ms(400);
- 122   1              display_one_char(0, 0, 'c');
- 123   1              while(1);
- 124   1              return 0;
- 125   1      }
+ 118   1              delay_ms(50);
+ 119   1              write_command(0x0f, 1); //设置显示光标
+ 120   1              write_command(0x01, 1); //清屏一波
+ 121   1              write_command(0x06, 1); //地址指针自动+1且光标+1 
+ 122   1              write_command(0x80, 1); //设置初始显示位置，这一步好像可以不要，
+ 123   1                                                              //后面肯定还要设置地址。
+ 124   1      }
+ 125          
  126          
- 127                          
+ 127          void display_one_char(unsigned char x, unsigned char y, unsigned char data_)
+ 128          {
+ 129   1              y &= 0x01;
+ 130   1              x &= 0x0f;              //限制x不能大于15
+ 131   1              if (y) x |= 0x40; //要显示第二行的时候
+ 132   1              x |= 0x80;
+ 133   1              write_command(x, 1);
+ 134   1              write_data(data_);
+ 135   1      }
+ 136          
+ 137          
+ 138          void interrupt_func() interrupt 1 //T0中断用来计数器溢出，超出测距范围
+ 139          {
+ 140   1              flag = 1;         //中断溢出标志
+ 141   1      }
+ 142          
+ 143          void strat_ultrasonic(void)
+ 144          {
+ 145   1              TRIG = 1; //启动超声波模块
+ 146   1              _nop_();        //延时至少10ums以上
+ 147   1              _nop_();
+ 148   1              _nop_();
+ 149   1              _nop_();
+ 150   1              _nop_();
+ 151   1              _nop_();
+ 152   1              _nop_();
+ 153   1              _nop_();
+ 154   1              _nop_();
+ 155   1              _nop_();
+ 156   1              _nop_();
+ 157   1              _nop_();
+ 158   1              _nop_();
+ 159   1              _nop_();
+ 160   1              TRIG = 0;  //关闭该模块
+ 161   1      }
+ 162          
+ 163          void count_distance(void)
+ 164          {       unsigned char j;
+ 165   1              time = TH0 * 256 + TL0;
+ 166   1              TH0 = 0;   //重新归零，重新计数
+ 167   1              TL0 = 0;
+ 168   1      
+ 169   1              S = (time * 1.7) / 100;  //这里算出来的是cm
+ 170   1              if ((S >= 700) || flag == 1)
+ 171   1              {
+ 172   2                      flag = 0;
+ 173   2      
+ 174   2                      display_one_char(0, 1, 'F');
+ 175   2              }
+ 176   1              else
+ 177   1              {
+ 178   2                      if (S < 10){
+ 179   3                              P1 = 0x00;
+C51 COMPILER V9.00   MAIN                                                                  12/20/2016 18:42:03 PAGE 4   
+
+ 180   3                              delay_ms(50000);
+ 181   3                              P1 = 0xff;
+ 182   3                              delay_ms(50000);
+ 183   3                              for(j = 200; j > 0; --j){
+ 184   4                                      BEEP = ~BEEP;
+ 185   4                                      delay500();
+ 186   4                              }       
+ 187   3                      }
+ 188   2                      disbuff[0]=S%1000/100;
+ 189   2                      disbuff[1]=S%1000%100/10;
+ 190   2                      disbuff[2]=S%1000%10 %10;
+ 191   2                      display_one_char(0, 1, num_char[disbuff[0]]);
+ 192   2                      display_one_char(1, 1, num_char[10]);   //显示点
+ 193   2                      display_one_char(2, 1, num_char[disbuff[1]]);
+ 194   2                      display_one_char(3, 1, num_char[disbuff[2]]);
+ 195   2                      display_one_char(4, 1, num_char[12]);   //显示M
+ 196   2              }
+ 197   1      
+ 198   1      
+ 199   1      }
+ 200          
+ 201          int main()
+ 202          {       unsigned char i = 0;
+ 203   1              delay_ms(400);
+ 204   1              LCM_init();
+ 205   1              delay_ms(400);
+ 206   1              while(first_line[i] != '\0'){
+ 207   2                      display_one_char(i, 0, first_line[i]);
+ 208   2                      i++;
+ 209   2                      }
+ 210   1              display_one_char(0, 1, 'T');
+ 211   1      //      display_one_char(0, 0, 'c');
+ 212   1              while(1)
+ 213   1              {
+ 214   2                      TMOD = 0x01;      //设T0为方式1， GATE=1
+ 215   2                      TH0 = 0;
+ 216   2                      TL0 = 0;
+ 217   2                      ET0 = 1;         //允许T0中断
+ 218   2                      EA = 1;                  //开启总中断，这一步是必须的，因为总共有两个计时器
+ 219   2      
+ 220   2                      while(1){
+ 221   3                              strat_ultrasonic();
+ 222   3                              while(!ECHO);   //等待
+ 223   3                              TR0 = 1;       //开启计数
+ 224   3                              while(ECHO);    //计时并且等待
+ 225   3                              TR0 = 0;
+ 226   3                              count_distance();
+ 227   3                              delay_ms(80000);   //延时
+ 228   3                      }
+ 229   2              }
+ 230   1      
+ 231   1              //while(1);
+ 232   1              return 0;
+ 233   1      }
+ 234          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    219    ----
-   CONSTANT SIZE    =   ----    ----
+   CODE SIZE        =    655    ----
+   CONSTANT SIZE    =     53    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       2
+C51 COMPILER V9.00   MAIN                                                                  12/20/2016 18:42:03 PAGE 5   
+
+   DATA SIZE        =     11       2
    IDATA SIZE       =   ----    ----
-   BIT SIZE         =   ----       1
+   BIT SIZE         =      1       1
 END OF MODULE INFORMATION.
 
 

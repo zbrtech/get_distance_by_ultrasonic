@@ -1,16 +1,25 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        12/20/2016  00:39:08  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/20/2016  18:42:04  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
 C:\KEIL\C51\BIN\BL51.EXE main.obj TO ultrasonic RAMSIZE (256)
 
 
-MEMORY MODEL: SMALL
+MEMORY MODEL: SMALL WITH FLOATING POINT ARITHMETIC
 
 
 INPUT MODULES INCLUDED:
   main.obj (MAIN)
+  C:\KEIL\C51\LIB\C51FPS.LIB (?C?FPMUL)
+  C:\KEIL\C51\LIB\C51FPS.LIB (?C?FPDIV)
+  C:\KEIL\C51\LIB\C51FPS.LIB (?C?FCAST)
+  C:\KEIL\C51\LIB\C51FPS.LIB (?C?CASTF)
+  C:\KEIL\C51\LIB\C51FPS.LIB (?C?FPGETOPN)
   C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?ULDIV)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?LNEG)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?ULCMP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
 
 
 LINK MAP OF MODULE:  ultrasonic (MAIN)
@@ -21,24 +30,38 @@ LINK MAP OF MODULE:  ultrasonic (MAIN)
 
             * * * * * * *   D A T A   M E M O R Y   * * * * * * *
             REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
-            DATA    0008H     0002H     UNIT         _DATA_GROUP_
-                    000AH     0016H                  *** GAP ***
-            BIT     0020H.0   0000H.1   UNIT         _BIT_GROUP_
-                    0020H.1   0000H.7                *** GAP ***
+            DATA    0008H     000BH     UNIT         ?DT?MAIN
+            DATA    0013H     0002H     UNIT         _DATA_GROUP_
+                    0015H     000BH                  *** GAP ***
+            BIT     0020H.0   0000H.1   UNIT         ?BI?MAIN
+            BIT     0020H.1   0000H.1   UNIT         _BIT_GROUP_
+                    0020H.2   0000H.6                *** GAP ***
             IDATA   0021H     0001H     UNIT         ?STACK
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-                    0003H     07FDH                  *** GAP ***
-            CODE    0800H     0037H     UNIT         ?PR?LCM_INIT?MAIN
-            CODE    0837H     0022H     UNIT         ?PR?_DELAY_MS?MAIN
-            CODE    0859H     001DH     UNIT         ?PR?_DISPLAY_ONE_CHAR?MAIN
-            CODE    0876H     001BH     UNIT         ?PR?_WRITE_COMMAND?MAIN
-            CODE    0891H     001BH     UNIT         ?PR?MAIN?MAIN
-            CODE    08ACH     0013H     UNIT         ?PR?_WRITE_DATA?MAIN
-            CODE    08BFH     0012H     UNIT         ?PR?GET_BUSY_STATUS?MAIN
-            CODE    08D1H     000CH     UNIT         ?C_C51STARTUP
-            CODE    08DDH     000AH     UNIT         ?PR?READ_DATA?MAIN
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+                    000EH     07F2H                  *** GAP ***
+            CODE    0800H     0352H     UNIT         ?C?LIB_CODE
+            CODE    0B52H     015DH     UNIT         ?PR?COUNT_DISTANCE?MAIN
+            CODE    0CAFH     008CH     UNIT         ?C_C51STARTUP
+            CODE    0D3BH     0053H     UNIT         ?PR?MAIN?MAIN
+            CODE    0D8EH     0037H     UNIT         ?PR?LCM_INIT?MAIN
+            CODE    0DC5H     0035H     UNIT         ?CO?MAIN
+            CODE    0DFAH     0022H     UNIT         ?PR?_DELAY_MS?MAIN
+            CODE    0E1CH     0021H     UNIT         ?PR?_DISPLAY_ONE_CHAR?MAIN
+            CODE    0E3DH     001BH     UNIT         ?PR?_WRITE_COMMAND?MAIN
+            CODE    0E58H     0016H     UNIT         ?C_INITSEG
+            CODE    0E6EH     0013H     UNIT         ?PR?_WRITE_DATA?MAIN
+            CODE    0E81H     0013H     UNIT         ?PR?STRAT_ULTRASONIC?MAIN
+            CODE    0E94H     0012H     UNIT         ?PR?GET_BUSY_STATUS?MAIN
+            CODE    0EA6H     000AH     UNIT         ?PR?READ_DATA?MAIN
+            CODE    0EB0H     0005H     UNIT         ?PR?DELAY500?MAIN
+            CODE    0EB5H     0003H     UNIT         ?PR?INTERRUPT_FUNC?MAIN
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 2
+
+
 
 
 
@@ -50,24 +73,25 @@ SEGMENT                               BIT_GROUP          DATA_GROUP
 ----------------------------------------------------------------------
 ?C_C51STARTUP                      -----    -----      -----    -----
   +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
 
 ?PR?MAIN?MAIN                      -----    -----      -----    -----
   +--> ?PR?_DELAY_MS?MAIN
   +--> ?PR?LCM_INIT?MAIN
+  +--> ?CO?MAIN
   +--> ?PR?_DISPLAY_ONE_CHAR?MAIN
+  +--> ?PR?STRAT_ULTRASONIC?MAIN
+  +--> ?PR?COUNT_DISTANCE?MAIN
 
 ?PR?LCM_INIT?MAIN                  -----    -----      -----    -----
   +--> ?PR?_WRITE_COMMAND?MAIN
   +--> ?PR?_DELAY_MS?MAIN
-BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  00:39:08  PAGE 2
 
-
-
-?PR?_WRITE_COMMAND?MAIN            -----    -----      0008H    0002H
+?PR?_WRITE_COMMAND?MAIN            -----    -----      0013H    0002H
   +--> ?PR?GET_BUSY_STATUS?MAIN
   +--> ?PR?_DELAY_MS?MAIN
 
-?PR?GET_BUSY_STATUS?MAIN           0020H.0  0000H.1    -----    -----
+?PR?GET_BUSY_STATUS?MAIN           0020H.1  0000H.1    -----    -----
   +--> ?PR?_DELAY_MS?MAIN
 
 ?PR?_DISPLAY_ONE_CHAR?MAIN         -----    -----      -----    -----
@@ -78,6 +102,12 @@ SEGMENT                               BIT_GROUP          DATA_GROUP
   +--> ?PR?GET_BUSY_STATUS?MAIN
   +--> ?PR?_DELAY_MS?MAIN
 
+?PR?COUNT_DISTANCE?MAIN            -----    -----      -----    -----
+  +--> ?PR?_DELAY_MS?MAIN
+  +--> ?PR?DELAY500?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?_DISPLAY_ONE_CHAR?MAIN
+
 
 
 SYMBOL TABLE OF MODULE:  ultrasonic (MAIN)
@@ -87,146 +117,303 @@ SYMBOL TABLE OF MODULE:  ultrasonic (MAIN)
 
   -------         MODULE        MAIN
   C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
   D:00A0H         PUBLIC        P2
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 3
+
+
+  C:0EB5H         PUBLIC        interrupt_func
+  B:00A8H.7       PUBLIC        EA
   B:0080H.5       PUBLIC        P0_5
+  B:00B0H.3       PUBLIC        P3_3
   B:0080H.6       PUBLIC        P0_6
+  B:00B0H.4       PUBLIC        P3_4
   B:0080H.7       PUBLIC        P0_7
-  C:08DDH         PUBLIC        read_data
-  C:0859H         PUBLIC        _display_one_char
-  C:0891H         PUBLIC        main
-  C:08ACH         PUBLIC        _write_data
-  C:083FH         PUBLIC        _delay_ms
-  C:08BFH         PUBLIC        get_busy_status
-  C:087AH         PUBLIC        _write_command
-  C:0800H         PUBLIC        LCM_init
-  C:0839H         SYMBOL        L?0023
-  C:083BH         SYMBOL        L?0024
-  -------         PROC          L?0022
-  -------         ENDPROC       L?0022
-  C:0839H         SYMBOL        L?0023
-  C:083BH         SYMBOL        L?0024
+  B:00B0H.6       PUBLIC        P3_6
+  C:0EA6H         PUBLIC        read_data
+  B:0020H.0       PUBLIC        flag
+  C:0E20H         PUBLIC        _display_one_char
+  C:0D3BH         PUBLIC        main
+  C:0EB0H         PUBLIC        delay500
+  C:0E6EH         PUBLIC        _write_data
+  D:0008H         PUBLIC        time
+  D:0089H         PUBLIC        TMOD
+  C:0DC5H         PUBLIC        first_line
+  C:0DD3H         PUBLIC        wrong_info
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  C:0DEDH         PUBLIC        num_char
+  D:000AH         PUBLIC        S
+  C:0E02H         PUBLIC        _delay_ms
+  D:000EH         SYMBOL        DisNum
+  B:0088H.4       PUBLIC        TR0
+  C:0B52H         PUBLIC        count_distance
+  C:0E81H         PUBLIC        strat_ultrasonic
+  D:000FH         PUBLIC        disbuff
+  C:0E94H         PUBLIC        get_busy_status
+  C:0E41H         PUBLIC        _write_command
+  C:0D8EH         PUBLIC        LCM_init
+  C:0DFCH         SYMBOL        L?0046
+  C:0DFEH         SYMBOL        L?0047
+  -------         PROC          L?0045
+  -------         ENDPROC       L?0045
+  C:0DFCH         SYMBOL        L?0046
+  C:0DFEH         SYMBOL        L?0047
   -------         PROC          _DELAY_MS
   D:0006H         SYMBOL        time
   -------         DO            
   D:0006H         SYMBOL        time1
   D:0004H         SYMBOL        time2
   -------         ENDDO         
-  C:083FH         LINE#         30
-  C:083FH         LINE#         31
-  C:083FH         LINE#         32
-  C:083FH         LINE#         33
-  C:0843H         LINE#         34
-  C:084EH         LINE#         35
-  C:0858H         LINE#         36
+  C:0E02H         LINE#         44
+  C:0E02H         LINE#         45
+  C:0E02H         LINE#         46
+  C:0E02H         LINE#         47
+  C:0E06H         LINE#         48
+  C:0E11H         LINE#         49
+  C:0E1BH         LINE#         50
   -------         ENDPROC       _DELAY_MS
-BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  00:39:08  PAGE 3
+  -------         PROC          DELAY500
+  -------         DO            
+  D:0007H         SYMBOL        i
+  -------         ENDDO         
+  C:0EB0H         LINE#         52
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 4
 
 
+  C:0EB0H         LINE#         53
+  C:0EB0H         LINE#         55
+  C:0EB4H         LINE#         56
+  -------         ENDPROC       DELAY500
   -------         PROC          GET_BUSY_STATUS
   -------         DO            
-  B:0020H.0       SYMBOL        result
+  B:0020H.1       SYMBOL        result
   -------         ENDDO         
-  C:08BFH         LINE#         38
-  C:08BFH         LINE#         39
-  C:08BFH         LINE#         41
-  C:08C2H         LINE#         42
-  C:08C4H         LINE#         43
-  C:08C4H         LINE#         44
-  C:08C4H         LINE#         45
-  C:08C7H         LINE#         46
-  C:08C9H         LINE#         47
-  C:08CEH         LINE#         48
-  C:08D0H         LINE#         49
+  C:0E94H         LINE#         58
+  C:0E94H         LINE#         59
+  C:0E94H         LINE#         61
+  C:0E97H         LINE#         62
+  C:0E99H         LINE#         63
+  C:0E99H         LINE#         64
+  C:0E99H         LINE#         65
+  C:0E9CH         LINE#         66
+  C:0E9EH         LINE#         67
+  C:0EA3H         LINE#         68
+  C:0EA5H         LINE#         69
   -------         ENDPROC       GET_BUSY_STATUS
-  C:0876H         SYMBOL        L?0026
-  -------         PROC          L?0025
-  -------         ENDPROC       L?0025
-  C:0876H         SYMBOL        L?0026
+  C:0E3DH         SYMBOL        L?0049
+  -------         PROC          L?0048
+  -------         ENDPROC       L?0048
+  C:0E3DH         SYMBOL        L?0049
   -------         PROC          _WRITE_COMMAND
   D:0003H         SYMBOL        WCLCM
-  D:0008H         SYMBOL        busy
-  C:087AH         LINE#         53
-  C:0880H         LINE#         54
-  C:0880H         LINE#         55
-  C:0885H         LINE#         56
-  C:0887H         LINE#         57
-  C:0889H         LINE#         58
-  C:088BH         LINE#         59
-  C:088BH         LINE#         60
-  C:088EH         LINE#         61
-  C:0890H         LINE#         62
+  D:0013H         SYMBOL        busy
+  C:0E41H         LINE#         73
+  C:0E47H         LINE#         74
+  C:0E47H         LINE#         75
+  C:0E4CH         LINE#         76
+  C:0E4EH         LINE#         77
+  C:0E50H         LINE#         78
+  C:0E52H         LINE#         79
+  C:0E52H         LINE#         80
+  C:0E55H         LINE#         81
+  C:0E57H         LINE#         82
   -------         ENDPROC       _WRITE_COMMAND
   -------         PROC          _WRITE_DATA
   D:0003H         SYMBOL        WRLCM
-  C:08ACH         LINE#         65
-  C:08AEH         LINE#         66
-  C:08AEH         LINE#         67
-  C:08B3H         LINE#         68
-  C:08B5H         LINE#         69
-  C:08B7H         LINE#         70
-  C:08B9H         LINE#         71
-  C:08B9H         LINE#         72
-  C:08BCH         LINE#         73
-  C:08BEH         LINE#         74
+  C:0E6EH         LINE#         85
+  C:0E70H         LINE#         86
+  C:0E70H         LINE#         87
+  C:0E75H         LINE#         88
+  C:0E77H         LINE#         89
+  C:0E79H         LINE#         90
+  C:0E7BH         LINE#         91
+  C:0E7BH         LINE#         92
+  C:0E7EH         LINE#         93
+  C:0E80H         LINE#         94
   -------         ENDPROC       _WRITE_DATA
   -------         PROC          READ_DATA
-  C:08DDH         LINE#         78
-  C:08DDH         LINE#         79
-  C:08DDH         LINE#         80
-  C:08DFH         LINE#         81
-  C:08DFH         LINE#         82
-  C:08DFH         LINE#         83
-  C:08E2H         LINE#         84
-  C:08E4H         LINE#         85
-  C:08E6H         LINE#         86
-BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  00:39:08  PAGE 4
+  C:0EA6H         LINE#         98
+  C:0EA6H         LINE#         99
+  C:0EA6H         LINE#         100
+  C:0EA8H         LINE#         101
+  C:0EA8H         LINE#         102
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 5
 
 
+  C:0EA8H         LINE#         103
+  C:0EABH         LINE#         104
+  C:0EADH         LINE#         105
+  C:0EAFH         LINE#         106
   -------         ENDPROC       READ_DATA
   -------         PROC          LCM_INIT
-  C:0800H         LINE#         89
-  C:0800H         LINE#         90
-  C:0800H         LINE#         91
-  C:0803H         LINE#         92
-  C:0805H         LINE#         94
-  C:080CH         LINE#         95
-  C:080FH         LINE#         97
-  C:0814H         LINE#         98
-  C:0817H         LINE#         99
-  C:081CH         LINE#         100
-  C:0825H         LINE#         101
-  C:082EH         LINE#         102
+  C:0D8EH         LINE#         109
+  C:0D8EH         LINE#         110
+  C:0D8EH         LINE#         111
+  C:0D91H         LINE#         112
+  C:0D93H         LINE#         114
+  C:0D9AH         LINE#         115
+  C:0D9DH         LINE#         117
+  C:0DA2H         LINE#         118
+  C:0DA5H         LINE#         119
+  C:0DAAH         LINE#         120
+  C:0DB3H         LINE#         121
+  C:0DBCH         LINE#         122
   -------         ENDPROC       LCM_INIT
+  -------         PROC          L?0050
+  -------         ENDPROC       L?0050
   -------         PROC          _DISPLAY_ONE_CHAR
   D:0006H         SYMBOL        x
   D:0005H         SYMBOL        y
   D:0002H         SYMBOL        data_
-  C:0859H         LINE#         107
-  C:085DH         LINE#         108
-  C:085DH         LINE#         109
-  C:0860H         LINE#         110
-  C:0863H         LINE#         111
-  C:0869H         LINE#         112
-  C:086CH         LINE#         113
-  C:0871H         LINE#         114
+  C:0E20H         LINE#         127
+  C:0E24H         LINE#         128
+  C:0E24H         LINE#         129
+  C:0E27H         LINE#         130
+  C:0E2AH         LINE#         131
+  C:0E30H         LINE#         132
+  C:0E33H         LINE#         133
+  C:0E38H         LINE#         134
   -------         ENDPROC       _DISPLAY_ONE_CHAR
+  -------         PROC          INTERRUPT_FUNC
+  C:0EB5H         LINE#         138
+  C:0EB5H         LINE#         140
+  C:0EB7H         LINE#         141
+  -------         ENDPROC       INTERRUPT_FUNC
+  -------         PROC          STRAT_ULTRASONIC
+  C:0E81H         LINE#         143
+  C:0E81H         LINE#         144
+  C:0E81H         LINE#         145
+  C:0E83H         LINE#         146
+  C:0E84H         LINE#         147
+  C:0E85H         LINE#         148
+  C:0E86H         LINE#         149
+  C:0E87H         LINE#         150
+  C:0E88H         LINE#         151
+  C:0E89H         LINE#         152
+  C:0E8AH         LINE#         153
+  C:0E8BH         LINE#         154
+  C:0E8CH         LINE#         155
+  C:0E8DH         LINE#         156
+  C:0E8EH         LINE#         157
+  C:0E8FH         LINE#         158
+  C:0E90H         LINE#         159
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 6
+
+
+  C:0E91H         LINE#         160
+  C:0E93H         LINE#         161
+  -------         ENDPROC       STRAT_ULTRASONIC
+  -------         PROC          COUNT_DISTANCE
+  -------         DO            
+  D:0006H         SYMBOL        j
+  -------         ENDDO         
+  C:0B52H         LINE#         163
+  C:0B52H         LINE#         164
+  C:0B52H         LINE#         165
+  C:0B62H         LINE#         166
+  C:0B65H         LINE#         167
+  C:0B67H         LINE#         169
+  C:0B8EH         LINE#         170
+  C:0BA6H         LINE#         171
+  C:0BA6H         LINE#         172
+  C:0BA8H         LINE#         174
+  C:0BAEH         LINE#         175
+  C:0BB1H         LINE#         177
+  C:0BB1H         LINE#         178
+  C:0BC5H         LINE#         179
+  C:0BC8H         LINE#         180
+  C:0BCFH         LINE#         181
+  C:0BD2H         LINE#         182
+  C:0BD9H         LINE#         183
+  C:0BDBH         LINE#         184
+  C:0BDDH         LINE#         185
+  C:0BE0H         LINE#         186
+  C:0BE2H         LINE#         187
+  C:0BE2H         LINE#         188
+  C:0C07H         LINE#         189
+  C:0C3DH         LINE#         190
+  C:0C75H         LINE#         191
+  C:0C83H         LINE#         192
+  C:0C8CH         LINE#         193
+  C:0C96H         LINE#         194
+  C:0CA1H         LINE#         195
+  C:0CAEH         LINE#         196
+  C:0CAEH         LINE#         199
+  -------         ENDPROC       COUNT_DISTANCE
   -------         PROC          MAIN
-  C:0891H         LINE#         117
-  C:0891H         LINE#         118
-  C:0891H         LINE#         119
-  C:0898H         LINE#         120
-  C:089BH         LINE#         121
-  C:08A2H         LINE#         122
-  C:08AAH         LINE#         123
+  -------         DO            
+  D:0001H         SYMBOL        i
+  -------         ENDDO         
+  C:0D3BH         LINE#         201
+  C:0D3BH         LINE#         202
+  C:0D3DH         LINE#         203
+  C:0D44H         LINE#         204
+  C:0D47H         LINE#         205
+  C:0D4EH         LINE#         206
+  C:0D56H         LINE#         207
+  C:0D5DH         LINE#         208
+  C:0D5EH         LINE#         209
+  C:0D60H         LINE#         210
+  C:0D69H         LINE#         212
+  C:0D69H         LINE#         213
+  C:0D69H         LINE#         214
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/20/2016  18:42:04  PAGE 7
+
+
+  C:0D6CH         LINE#         215
+  C:0D6FH         LINE#         216
+  C:0D71H         LINE#         217
+  C:0D73H         LINE#         218
+  C:0D75H         LINE#         220
+  C:0D75H         LINE#         221
+  C:0D78H         LINE#         222
+  C:0D7BH         LINE#         223
+  C:0D7DH         LINE#         224
+  C:0D80H         LINE#         225
+  C:0D82H         LINE#         226
+  C:0D85H         LINE#         227
+  C:0D8CH         LINE#         228
   -------         ENDPROC       MAIN
   -------         ENDMOD        MAIN
+
+  -------         MODULE        ?C?FPMUL
+  C:0800H         PUBLIC        ?C?FPMUL
+  -------         ENDMOD        ?C?FPMUL
+
+  -------         MODULE        ?C?FPDIV
+  C:0909H         PUBLIC        ?C?FPDIV
+  -------         ENDMOD        ?C?FPDIV
+
+  -------         MODULE        ?C?FCAST
+  C:09B0H         PUBLIC        ?C?FCASTC
+  C:09ABH         PUBLIC        ?C?FCASTI
+  C:09A6H         PUBLIC        ?C?FCASTL
+  -------         ENDMOD        ?C?FCAST
+
+  -------         MODULE        ?C?CASTF
+  C:09E4H         PUBLIC        ?C?CASTF
+  -------         ENDMOD        ?C?CASTF
+
+  -------         MODULE        ?C?ULDIV
+  C:0AA1H         PUBLIC        ?C?ULDIV
+  -------         ENDMOD        ?C?ULDIV
+
+  -------         MODULE        ?C?LNEG
+  C:0B33H         PUBLIC        ?C?LNEG
+  -------         ENDMOD        ?C?LNEG
+
+  -------         MODULE        ?C?ULCMP
+  C:0B41H         PUBLIC        ?C?ULCMP
+  -------         ENDMOD        ?C?ULCMP
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?READ_DATA?MAIN
 
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 00DBH BYTE (10%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 02DCH BYTE (35%) *
 ******************************************************************************
 
-Program Size: data=11.1 xdata=0 code=234
+Program Size: data=22.2 xdata=0 code=1726
 LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)
