@@ -9,19 +9,7 @@ Project File Date:  12/20/2016
 <h2>Output:</h2>
 Build target 'Target 1'
 compiling main.c...
-MAIN.C(55): error C141: syntax error near 'int'
-MAIN.C(55): error C141: syntax error near ')'
-MAIN.C(184): error C202: 'BEEP': undefined identifier
-Target not created
-Build target 'Target 1'
-compiling main.c...
-MAIN.C(184): error C202: 'BEEP': undefined identifier
-Target not created
-Build target 'Target 1'
-compiling main.c...
 linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?READ_DATA?MAIN
-Program Size: data=22.2 xdata=0 code=1726
+Program Size: data=31.2 xdata=0 code=2434
 creating hex file from "ultrasonic"...
-"ultrasonic" - 0 Error(s), 1 Warning(s).
+"ultrasonic" - 0 Error(s), 0 Warning(s).

@@ -172,10 +172,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>33</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>199</TopLine>
-      <CurrentLine>199</CurrentLine>
+      <TopLine>367</TopLine>
+      <CurrentLine>394</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -210,8 +210,8 @@
 
   <AlienFiles>
     <PathWithFilename>C:\KEIL\C51\INC\ATMEL\AT89X51.H</PathWithFilename>
-    <TopLine>13</TopLine>
-    <CurrentLine>27</CurrentLine>
+    <TopLine>1</TopLine>
+    <CurrentLine>1</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -1579,15 +1579,15 @@
       <Documents>
         <Doc>
           <Name>.\main.c</Name>
-          <ColumnNumber>33</ColumnNumber>
-          <TopLine>199</TopLine>
-          <CurrentLine>199</CurrentLine>
+          <ColumnNumber>0</ColumnNumber>
+          <TopLine>367</TopLine>
+          <CurrentLine>394</CurrentLine>
         </Doc>
         <Doc>
           <Name>C:\KEIL\C51\INC\ATMEL\AT89X51.H</Name>
           <ColumnNumber>20</ColumnNumber>
-          <TopLine>13</TopLine>
-          <CurrentLine>27</CurrentLine>
+          <TopLine>1</TopLine>
+          <CurrentLine>1</CurrentLine>
         </Doc>
         <Doc>
           <Name>C:\KEIL\C51\INC\INTRINS.H</Name>

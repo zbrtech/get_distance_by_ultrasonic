@@ -174,8 +174,8 @@
       <Focus>0</Focus>
       <ColumnNumber>10</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>195</TopLine>
-      <CurrentLine>207</CurrentLine>
+      <TopLine>332</TopLine>
+      <CurrentLine>332</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -185,7 +185,7 @@
   <AlienFiles>
     <PathWithFilename>C:\KEIL\C51\INC\INTRINS.H</PathWithFilename>
     <TopLine>1</TopLine>
-    <CurrentLine>6</CurrentLine>
+    <CurrentLine>13</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -210,8 +210,8 @@
 
   <AlienFiles>
     <PathWithFilename>C:\KEIL\C51\INC\ATMEL\AT89X51.H</PathWithFilename>
-    <TopLine>111</TopLine>
-    <CurrentLine>111</CurrentLine>
+    <TopLine>1</TopLine>
+    <CurrentLine>1</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
       <length>0</length>
@@ -1580,20 +1580,20 @@
         <Doc>
           <Name>.\main.c</Name>
           <ColumnNumber>10</ColumnNumber>
-          <TopLine>195</TopLine>
-          <CurrentLine>207</CurrentLine>
+          <TopLine>332</TopLine>
+          <CurrentLine>332</CurrentLine>
         </Doc>
         <Doc>
           <Name>C:\KEIL\C51\INC\ATMEL\AT89X51.H</Name>
           <ColumnNumber>20</ColumnNumber>
-          <TopLine>111</TopLine>
-          <CurrentLine>111</CurrentLine>
+          <TopLine>1</TopLine>
+          <CurrentLine>1</CurrentLine>
         </Doc>
         <Doc>
           <Name>C:\KEIL\C51\INC\INTRINS.H</Name>
-          <ColumnNumber>0</ColumnNumber>
+          <ColumnNumber>3</ColumnNumber>
           <TopLine>1</TopLine>
-          <CurrentLine>6</CurrentLine>
+          <CurrentLine>13</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>
